@@ -1,0 +1,51 @@
+$!webResourceManager.requireResource("com.synergyapps.plugins.jira.timepo-timesheet-plugin:timepo-timesheet-plugin-resources")
+
+<br>
+#set ($issues = $worklogContext.issues)
+#if($issues.isEmpty())
+#stop
+#end
+
+<div style="width: 100%; overflow-x: auto">
+    <table border="0" cellpadding="3" cellspacing="1" class="main">
+        <tr>
+            <td class="main" colspan="2">
+                $daysList.firstDay.dayAndMonth - $daysList.lastDay.dayAndMonth
+            </td>
+            #foreach($user in $worklogContext.users)
+                <td class="main">$user</td>
+            #end
+            <td class="main"><b>Total</b></td>
+        </tr>
+        #parse('/templates/reports/issues-report/total.vm')
+
+        #foreach($issue in $issues)
+            <tr>
+                <td class="main">
+                    <table>
+                        <tr>
+                            #if($forExcel=="true")
+                                <td width="20%">$issue.key</td>
+                            #else
+                                <td width="5%">#displayType($issue)</td>
+                                <td width="20%"><a href="$baseurl/browse/$issue.key">$issue.key</a></td>
+                            #end
+                            <td>$issue.summary</td>
+                        </tr>
+                    </table>
+                </td>
+                #set ($totalTimeForThisIssue = $worklogContext.issueItemByIssue.get($issue).totalWorklog())
+                <td class="main"><b>$textUtil.worklogPrettyPrint($totalTimeForThisIssue)</b></td>
+                #foreach($user in $worklogContext.users)
+                    <td class="main">
+                        #set ($timeSpent = $worklogContext.issueItemByIssue.get($issue).worklogByThisUser($user))
+                    $textUtil.worklogPrettyPrint($timeSpent)
+                    </td>
+                #end
+                <td class="main"><b>$textUtil.worklogPrettyPrint($totalTimeForThisIssue)</b></td>
+            </tr>
+        #end
+
+        #parse('/templates/reports/issues-report/total.vm')
+    </table>
+</div>

@@ -1,0 +1,63 @@
+$!webResourceManager.requireResource("com.synergyapps.plugins.jira.timepo-timesheet-plugin:timepo-timesheet-plugin-resources")
+
+#set ($totalColumnCount = $worklogContext.daysCount+2)
+#set ($userIssuesByUserName = $worklogContext.buildMapFromUserToHisIssues())
+
+<div style="width: 100%; overflow-x: auto">
+    <table border="0" cellpadding="3" cellspacing="1" class="main">
+        #foreach($userName in $worklogContext.users)
+
+            #set($issues = $userIssuesByUserName.get($userName))
+            <tr>
+                <td class="main" colspan="$totalColumnCount" style="text-align: left"><b>User:</b> $userName</td>
+            </tr>
+            #set ($totalModifier = "up")
+            #parse('/templates/gadgets/timesheet-gadget/total.vm')
+
+            <tr class="main">
+                <th class="main">Issue</th>
+                #foreach($day in $daysList)
+                    <th class="main">$day.dayOfWeekName<br>$day.dayAndMonth</th>
+                #end
+                <th class="main">Total</th>
+            </tr>
+
+            #foreach($issue in $issues)
+                <tr class="main_issue">
+
+                    <td class="main">
+                        <table>
+                            <tr>
+                                <td width="5%">#displayType($issue)</td>
+                                <td width="20%">
+                                    <a href="$baseurl/browse/$issue.key">$issue.key</a>
+                                </td>
+                                <td>$issue.summary</td>
+                            </tr>
+                        </table>
+                    </td>
+
+                    #set ($dayCounter = 0)
+                    #foreach($timeSpent in $worklogContext.issueItemByIssue.get($issue).worklog.get($userName))
+                        #set ($cellId = "${userName}-${issue.id}-${dayCounter}")
+                        <td id="$cellId" class="main_worklog"
+                            onclick="cellClick('#$cellId')"
+                            onmouseover="cellMouseOver('#$cellId')"
+                            onmouseout="cellMouseOut('#$cellId')">
+                        </td>
+                        #set ($dayCounter = $dayCounter + 1)
+                    #end
+                    <td id="${userName}-${issue.id}-right"
+                        class="main">$textUtil.worklogPrettyPrint($worklogContext.issueItemByIssue.get($issue).worklogByThisUser($userName))</td>
+                </tr>
+            #end
+
+            #set ($totalModifier = "down")
+            #parse('/templates/gadgets/timesheet-gadget/total.vm')
+        #end
+    </table>
+</div>
+
+<script>
+    window.onload = initPopups($worklogContext.worklogMapPrettyPrint, $daysList.dayListPrettyPrint);
+</script>

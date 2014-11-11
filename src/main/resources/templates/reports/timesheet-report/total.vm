@@ -1,0 +1,11 @@
+$!webResourceManager.requireResource("com.synergyapps.plugins.jira.timepo-timesheet-plugin:timepo-timesheet-plugin-resources")
+
+<tr>
+    <td class="total" colspan="2" style="text-align: left"><b>Total</b></td>
+    #set ($totalTimeOnPage = 0)
+    #foreach($totalTimeSpent in $worklogContext.userItemByUserName.get($userName).worklogByAllIssues())
+        <td class="total">$textUtil.worklogPrettyPrint($totalTimeSpent)</td>
+        #set ($totalTimeOnPage = $totalTimeOnPage + $totalTimeSpent)
+    #end
+    <td class="total">$textUtil.worklogPrettyPrint($totalTimeOnPage)</td>
+</tr>

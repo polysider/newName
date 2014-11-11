@@ -1,0 +1,75 @@
+$!webResourceManager.requireResource("com.synergyapps.plugins.jira.timepo-timesheet-plugin:timepo-timesheet-plugin-resources")
+
+#if($worklogContext.issues.isEmpty())
+#stop
+#end
+
+<div style="width: 100%; overflow-x: auto">
+    <table border="0" cellpadding="3" cellspacing="1" class="main">
+        <tr>
+            <td class="main">
+                <b>$daysList.firstDay.dayAndMonth - $daysList.lastDay.dayAndMonth</b>
+            </td>
+            <td class="main"><b>Total</b></td>
+            #foreach($userName in $worklogContext.users)
+                <td class="main"><b>$userName</b></td>
+            #end
+            <td class="main"><b>Total</b></td>
+        </tr>
+        #parse('/templates/gadgets/issues-gadget/total.vm')
+
+        #set ($projects = $worklogContext.projectsWithRelatedIssues)
+        #foreach($projectName in $projects.keySet())
+            <tr>
+                <th class="main" style="text-align: left"><b>$projectName</b></th>
+                #set ($totalWorklogForThisProject = 0)
+                #foreach($userName in $worklogContext.users)
+                    #set ($totalWorklogForThisProject = $totalWorklogForThisProject + $worklogContext.userItemByUserName.get($userName).overallWorklogByProject.get($projectName))
+                #end
+
+                <th class="main"><b>$textUtil.worklogPrettyPrint($totalWorklogForThisProject)</b></th>
+                #foreach($userName in $worklogContext.users)
+                    <th class="main">
+                        <b>$textUtil.worklogPrettyPrint($worklogContext.userItemByUserName.get($userName).overallWorklogByProject.get($projectName))</b>
+                    </th>
+                #end
+                <th class="main"><b>$textUtil.worklogPrettyPrint($totalWorklogForThisProject)</b></th>
+            </tr>
+
+            #if(!$summaryLinesOnly)
+                #set ($issues = $projects.get($projectName))
+                #foreach($issue in $issues)
+                    <tr>
+                        <td class="main">
+                            <table>
+                                <tr>
+                                    <td width="5%">#displayType($issue)</td>
+                                    <td width="20%"><a href="$baseurl/browse/$issue.key">$issue.key</a></td>
+                                    <td>$issue.summary</td>
+                                </tr>
+                            </table>
+                        </td>
+                        #set ($totalTimeForThisIssue = $worklogContext.issueItemByIssue.get($issue).totalWorklog())
+                        <th class="main"><b>$textUtil.worklogPrettyPrint($totalTimeForThisIssue)</b></th>
+                        #foreach($userName in $worklogContext.users)
+                            #set ($cellId = "${userName}-${issue.id}")
+                            <td id="$cellId" class="main_worklog"
+                                onmouseover="showShowWorklogPopup('#$cellId')"
+                                onmouseout="hideShowWorklogPopup('#$cellId')">
+                                #set ($timeSpent = $worklogContext.issueItemByIssue.get($issue).worklogByThisUser($userName))
+                    $textUtil.worklogPrettyPrint($timeSpent)
+                            </td>
+                        #end
+                        <th class="main"><b>$textUtil.worklogPrettyPrint($totalTimeForThisIssue)</b></th>
+                    </tr>
+                #end
+            #end
+        #end
+
+        #parse('/templates/gadgets/issues-gadget/total.vm')
+    </table>
+</div>
+
+<script>
+    window.onload = initPopups($worklogContext.worklogMapPrettyPrint, $daysList.dayListPrettyPrint);
+</script>

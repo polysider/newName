@@ -1,0 +1,36 @@
+<style>
+    table {
+        width: 100%;
+        font-family: "Trebuchet MS", Helvetica, sans-serif;
+    }
+
+    table.main {
+        border-collapse: collapse;
+        text-align: center;
+    }
+
+    th, td {
+        padding: 2px 7px 2px 7px;
+    }
+
+    th.main, td.main, td.main_worklog_comment, td.total {
+        border: 1px solid black;
+        text-align: center;
+    }
+
+    td.main_worklog_comment {
+        font-size: 0.65em;
+    }
+
+    th.main {
+        background-color: rgb(58, 124, 192);
+        color: white;
+    }
+
+    td.total {
+        background-color: rgb(32, 80, 129);
+        color: white;
+    }
+</style>
+
+#parse('/templates/reports/timesheet-report/view.vm')

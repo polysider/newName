@@ -1,0 +1,19 @@
+$webResourceManager.requireResource("com.synergyapps.plugins.jira.timepo-timesheet-plugin:timepo-timesheet-plugin-resources")
+
+## To show worklog - include this line to template:
+###parse('/templates/reports/log/log.vm')
+
+<b>This block only for debugging!</b>
+<table border="0" cellspacing="1" cellpadding="3" class="main">
+    <tr>
+        <td colspan="4" class="main"><b>Worklog</b></td>
+    </tr>
+    #foreach($worklog in $worklogs)
+        <tr>
+            <td class="main">$worklog.issue.key</td>
+            <td class="main">$worklog.authorObject.name</td>
+            <td class="main">$worklog.startDate</td>
+            <td class="main">$worklog.timeSpent</td>
+        </tr>
+    #end
+</table>
