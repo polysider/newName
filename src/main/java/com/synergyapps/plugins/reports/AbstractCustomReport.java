@@ -62,10 +62,10 @@ public abstract class AbstractCustomReport extends AbstractReport
         return true;
     }
 
-    //TODO: add tumbinals & description
-
     abstract protected Map<String, Object> prepareVelocityParams(Map map);
 
+	//TO DO OR NOT TO DO?
+	
     @Override
     public void validate(ProjectActionSupport action, Map params)
     {
