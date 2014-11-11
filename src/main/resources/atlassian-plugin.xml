@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+  <plugin-info>
+    <description>${project.description}</description>
+    <version>${project.version}</version>
+    <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+    <param name="plugin-icon">images/pluginIcon.jpg</param>
+    <param name="plugin-logo">images/pluginLogo.jpg</param>
+  </plugin-info>
+
+  <!-- add our i18n resource -->
+  <resource type="i18n" name="i18n" location="timepo-timesheet-plugin"/>
+
+  <!-- add our web resources -->
+  <web-resource key="timepo-timesheet-plugin-resources" name="timepo-timesheet-plugin Web Resources">
+    <resource type="download" name="timepo-timesheet-plugin.css" location="/css/timepo-timesheet-plugin.css"/>
+    <resource type="download" name="timepo-timesheet-plugin.js" location="/js/timepo-timesheet-plugin.js"/>
+
+    <resource type="download" name="jquery-ui.css" location="/css/jquery-ui.css"/>
+    <resource type="download" name="jquery-ui.js" location="/js/jquery-ui.js"/>
+
+    <resource type="download" name="images/" location="/images"/>
+
+    <context>timepo-timesheet-plugin</context>
+  </web-resource>
+
+  <!-- import from the product container -->
+  <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
+
+  <report name="Timesheet Report" i18n-name-key="timesheet-report.name" key="timesheet-report"
+          class="com.synergyapps.plugins.reports.TimesheetReport">
+    <description key="timesheet-report.description">The Timesheet Report</description>
+    <resource name="view" type="velocity" location="templates/reports/timesheet-report/view.vm"/>
+    <resource name="excel" type="velocity" location="templates/reports/timesheet-report/view-excel.vm"/>
+    <resource name="i18n" type="i18n" location="TimesheetReport"/>
+    <label key="timesheet-report.label"/>
+    <!-- the properties of this report which the user must select before running it -->
+    <properties>
+      <property>
+        <key>startDateId</key>
+        <name>Start date</name>
+        <type>date</type>
+      </property>
+      <property>
+        <key>endDateId</key>
+        <name>End date</name>
+        <type>date</type>
+      </property>
+      <property>
+        <key>jqlQueryId</key>
+        <name>Searching JQL query</name>
+        <type>string</type>
+        <default/>
+      </property>
+      <property>
+        <key>showWorklogCommentsId</key>
+        <name>Display worklog comments</name>
+        <type>checkbox</type>
+      </property>
+    </properties>
+  </report>
+
+  <report name="Issues Report" i18n-name-key="issues-report.name" key="issues-report"
+          class="com.synergyapps.plugins.reports.IssuesReport">
+    <description key="issues-report.description">The Issues Report</description>
+    <resource name="view" type="velocity" location="templates/reports/issues-report/view.vm"/>
+    <resource name="excel" type="velocity" location="templates/reports/issues-report/view-excel.vm"/>
+    <resource name="i18n" type="i18n" location="IssuesReport"/>
+    <label key="issues-report.label"/>
+    <!-- the properties of this report which the user must select before running it -->
+    <properties>
+      <property>
+        <key>startDateId</key>
+        <name>Start date</name>
+        <type>date</type>
+      </property>
+      <property>
+        <key>endDateId</key>
+        <name>End date</name>
+        <type>date</type>
+      </property>
+      <property>
+        <key>projectId</key>
+        <name>Project</name>
+        <type>select</type>
+        <values class="com.synergyapps.plugins.helper.ProjectValuesGenerator"/>
+      </property>
+      <property>
+        <key>jqlQueryId</key>
+        <name>Searching JQL query</name>
+        <type>string</type>
+        <default/>
+      </property>
+    </properties>
+  </report>
+
+  <gadget name="TimePO - Timesheet Gadget" key="timesheet-gadget" location="gadgets/timesheet-gadget/gadget.xml">
+    <description>
+      This dashboard reporting tool for employees allows to report own time in easy and convenient way using
+      'Timesheet' view. This view shows all task which you are working on in the chosen period of time.
+    </description>
+  </gadget>
+
+  <gadget name="TimePO - Logged Time Gadget" key="issues-gadget" location="gadgets/issues-gadget/gadget.xml">
+    <description>
+      Time tracking dashboard gadget for managers and employees allows to control working hours of your team or project.
+      Data can be displayed in detailed or compact mode and provide user with needed degree of information about team
+      efforts.
+    </description>
+  </gadget>
+
+  <rest name="TimePO Rest Resource" key="custom-rest-resource" path="/timepo-resource" version="1.0"/>
+</atlassian-plugin>

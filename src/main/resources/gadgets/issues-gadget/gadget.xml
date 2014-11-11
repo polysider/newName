@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+  <ModulePrefs title="TimePO - Logged Time Gadget"
+               directory_title="TimePO - Logged Time Gadget"
+               description="Time tracking dashboard gadget for managers and employees allows to control working hours of
+                your team or project. Data can be displayed in detailed or compact mode and provide user with needed
+                degree of information about team efforts."
+               author="Synergy Apps"
+               author_email="timepo.synergyapps@gmail.com"
+               screenshot='http://www.google.com/gadgets/directory/2661487601-no_preview.gif'
+               thumbnail='https://timepo.atlassian.net/wiki/download/attachments/524293/Gadget%20Logo.png'
+          >
+    <Optional feature="gadget-directory">
+      <Param name="categories">
+        JIRA
+      </Param>
+    </Optional>
+    <Optional feature="atlassian.util"/>
+    <Require feature="dynamic-height"/>
+    <Require feature="oauthpopup"/>
+    <Require feature="setprefs"/>
+    <Require feature="views"/>
+    <Require feature="settitle"/>
+
+    #oauth
+    #supportedLocales("issues-gadget,gadget.common")
+  </ModulePrefs>
+
+  <UserPref name="isConfigured" datatype="hidden" default_value="false"/>
+  <UserPref name="gadgetTitle" display_name="TimePO - Logged time gadget" datatype="string" default_value="TimePO - Logged time gadget"
+            required="true"/>
+  <UserPref name="timeInterval" display_name="Time interval" datatype="select" default_value="1" required="true"/>
+  <UserPref name="startDayOfTheWeek" display_name="Week start on" datatype="select" default_value="1" required="true"/>
+  <!--<UserPref name="jqlQuery" display_name="Searching JQL query" datatype="string" default_value=""/>-->
+  <UserPref name="projectId" display_name="Project" datatype="select" default_value=""/>
+  <UserPref name="summaryLinesOnly" display_name="Summarize by projects" datatype="select" default_value="false"
+            requires="true"/>
+  <UserPref name="refresh" datatype="hidden" default_value="false"/>
+
+  <Content type="html">
+    <![CDATA[
+        #requireResource("com.atlassian.jira.gadgets:common")
+        #requireResource("com.synergyapps.plugins.jira.timepo-timesheet-plugin:timepo-timesheet-plugin-resources")
+        #includeResources()
+
+        <script type="text/javascript">
+            (function () {
+                var gadget = AJS.Gadget({
+                    baseUrl: "__ATLASSIAN_BASE_URL__",
+                    config: {
+                    descriptor: function (args) {
+                      var gadget = this;
+
+                      var projects = [{"label":"All","value":""}];
+                      projectsMap = args.projects.options;
+                      for(key in projectsMap) {
+                        projectName = projectsMap[key].label;
+                        projects.push({"label":projectName,"value":projectName});
+                      }
+
+                      return {
+                          <!-- Missed parameters validation -->
+                          fields: [
+                              {
+                                userpref: "gadgetTitle",
+                                label: "Gadget title",
+                                type: "string",
+                                value: this.getPref("gadgetTitle")
+                              },
+                              {
+                                userpref: "timeInterval",
+                                label: "Time interval",
+                                type: "select",
+                                selected: this.getPref("timeInterval"),
+                                options: [
+                                  { label: "Current week", value: "1" },
+                                  { label: "Last week", value: "2" },
+                                  { label: "Last 2 weeks", value: "3" },
+                                  { label: "Last 4 weeks", value: "4" }
+                                ]
+                              },
+                              {
+                                userpref: "startDayOfTheWeek",
+                                label: "Week start on",
+                                type: "select",
+                                selected: this.getPref("startDayOfTheWeek"),
+                                options: [
+                                  { label: "Sunday", value: "1" },
+                                  { label: "Monday", value: "2" }
+                                ]
+                              },
+                              <!--{-->
+                                <!--userpref: "jqlQuery",-->
+                                <!--label: "Searching JQL query",-->
+                                <!--description: "Searching JQL query description",-->
+                                <!--type: "string",-->
+                                <!--value: this.getPref("jqlQuery")-->
+                              <!--},-->
+                              {
+                                userpref: "projectId",
+                                label: "Project",
+                                type: "select",
+                                selected: this.getPref("projectId"),
+                                options: projects
+                              },
+                              {
+                                userpref: "summaryLinesOnly",
+                                label: "Summarize by projects",
+                                type: "checkbox",
+                                options: [
+                                  {
+                                    label: "",
+                                    value: "true",
+                                    selected: this.getPref("summaryLinesOnly") == "true"
+                                  }
+                                ]
+                              },
+                              AJS.gadget.fields.nowConfigured()
+                          ]
+                      };
+                    },
+                    args : [{
+                      key: "projects",
+                      ajaxOptions: "/rest/gadget/1.0/filtersAndProjects?showFilters=false"
+                    }]
+                    },
+                    view: {
+                        enableReload: true,
+                        template: function(args) {
+                            var gadget = this;
+                            gadget.removeMenuItem("edit");
+                            gadget.getView().html(args.timesheet.html);
+
+                            var gadgetTitle = this.getPref("gadgetTitle");
+                            <!--var jqlQuery = this.getPref("jqlQuery");-->
+                            <!--if(jqlQuery) {-->
+                              <!--gadgetTitle += ", JQL restriction: " + jqlQuery.replace(/&#34;/g, '"');-->
+                            <!--}-->
+                            gadgets.window.setTitle(gadgetTitle);
+
+                            // Tells gadget to resize itself
+                            gadgets.window.adjustHeight();
+                        },
+                        args: [{
+                            key: "timesheet",
+                            ajaxOptions: function() {
+                                return {
+                                    url: "/rest/timepo-resource/1.0/issues-report.json",
+                                    data: {
+                                      timeInterval: this.getPref("timeInterval"),
+                                      startDayOfTheWeek: this.getPref("startDayOfTheWeek"),
+                                      jqlQuery: "", <!--this.getPref("jqlQuery"),-->
+                                      projectId: this.getPref("projectId"),
+                                      summaryLinesOnly: this.getPref("summaryLinesOnly"),
+                                      baseUrl: "__ATLASSIAN_BASE_URL__"
+                                    }
+                                };
+                            }
+                        }]
+                    }
+                });
+            })();
+        </script>
+
+    <div class="showWorklogPopup">
+      <div class="worklogItems"></div>
+    </div>
+
+    <script>
+      AJS.$(".showWorklogPopup").dialog({
+          autoOpen: false,
+          position: "center",     //important for jquery-ui
+          autoResize: true,
+          height: 'auto',
+          width: showWorklogPopupWidth
+      });
+
+      AJS.$(".ui-dialog-titlebar").hide();                //Hide header
+      AJS.$(".ui-dialog-content").css("padding", "0px");  //Remove paddings
+
+      function adjustGadgetsHeight() { gadgets.window.adjustHeight(); }
+    </script>
+    ]]>
+  </Content>
+</Module>

@@ -1,0 +1,65 @@
+table {
+    width: 100%;
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+}
+
+table.main {
+    border-collapse: collapse;
+    text-align: center;
+}
+
+th, td {
+    padding: 2px 7px 2px 7px;
+}
+
+th.main, td.main, td.main_worklog, td.main_worklog_comment, td.main_edit, td.total {
+    border: 1px solid darkgrey;
+}
+
+td.main_worklog_comment {
+   font-size: 0.65em;
+}
+
+th.main {
+    background-color: rgb(58, 124, 192);
+    color: white;
+}
+
+td.main_worklog, td.main_edit {
+    cursor: pointer;
+}
+
+td.main_worklog:hover {
+    background-color: lavender;
+}
+
+td.main_edit {
+    background-color: #fcefa1;
+}
+
+td.total {
+    background-color: rgb(32, 80, 129);
+    color: white;
+}
+
+.addWorklogPopup {
+    display: none;
+    text-align: left;
+    padding: 0px;
+    border: 1px solid #ccc;
+}
+
+.worklogPopup {
+    padding: 1px;
+    text-align: center;
+}
+
+#new, #save {
+    width: 3.5em;
+    height: 2em;
+}
+
+#delete, #ok {
+    width: 2em;
+    height: 2em;
+}
